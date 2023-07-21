@@ -15,6 +15,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +48,9 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
     private boolean pendingNewline = false;
     private String newline = TextUtil.newline_crlf;
 
+    //anhive
+    private BCI2LSL bci2LSL;
+
     /*
      * Lifecycle
      */
@@ -56,6 +60,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         setHasOptionsMenu(true);
         setRetainInstance(true);
         deviceAddress = getArguments().getString("device");
+        //anhive
+        bci2LSL = new BCI2LSL();
     }
 
     @Override
@@ -229,6 +235,8 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
         for (byte[] data : datas) {
             if (hexEnabled) {
                 spn.append(TextUtil.toHexString(data)).append('\n');
+                //anhive
+                bci2LSL.Open_BCI(data, 0, data.length);
             } else {
                 String msg = new String(data);
                 if (newline.equals(TextUtil.newline_crlf) && msg.length() > 0) {
@@ -249,7 +257,11 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
                 spn.append(TextUtil.toCaretString(msg, newline.length() != 0));
             }
         }
+        if(receiveText.length() > 1000)
+            receiveText.setText("");
+        
         receiveText.append(spn);
+
     }
 
     private void status(String str) {
